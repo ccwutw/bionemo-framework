@@ -14,6 +14,7 @@
 # limitations under the License.
 
 
+import os
 import tempfile
 from typing import Sequence
 
@@ -103,5 +104,4 @@ if __name__ == "__main__":
     print(results)
 
     # Manually delete the directory when done
-    # os.rmdir(str(tempdir))
-    print(tempdir)
+    os.rmdir(str(tempdir))
