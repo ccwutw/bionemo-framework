@@ -14,13 +14,10 @@
 # limitations under the License.
 
 
-import os
 import tempfile
-from typing import Any, Sequence
+from typing import Sequence
 
 import pytorch_lightning as pl
-import torch
-from lightning.pytorch.callbacks import BasePredictionWriter
 from nemo import lightning as nl
 from torch import Tensor
 
@@ -29,51 +26,10 @@ from bionemo.esm2.data.tokenizer import BioNeMoESMTokenizer, get_tokenizer
 from bionemo.esm2.model.finetune.datamodule import ESM2FineTuneDataModule
 from bionemo.esm2.model.finetune.finetune_regressor import ESM2FineTuneSeqConfig, InMemorySingleValueDataset
 from bionemo.llm.model.biobert.lightning import biobert_lightning_module
+from bionemo.llm.utils.callbacks import PredictionWriter
 
 
 __all__: Sequence[str] = ("infer_model",)
-
-
-class BatchPredictionWriter(BasePredictionWriter, pl.Callback):
-    """A callback that writes predictions to disk at specified intervals during training.
-
-    Args:
-        output_dir (str): The directory where predictions will be written.
-        write_interval (str): The interval at which predictions will be written. (batch, epoch)
-    """
-
-    def __init__(self, output_dir, write_interval):
-        super().__init__(write_interval)
-        self.output_dir = str(output_dir)
-        os.makedirs(self.output_dir, exist_ok=True)
-
-    def write_on_batch_end(
-        self,
-        trainer: pl.Trainer,
-        pl_module: pl.LightningModule,
-        prediction: Any,
-        batch_indices: Sequence[int] | None,
-        batch: Any,
-        batch_idx: int,
-        dataloader_idx: int,
-    ) -> None:
-        # this will create N (num processes) files in `output_dir` each containing
-        # the predictions of it's respective rank
-        result_path = os.path.join(self.output_dir, f"predictions__rank_{trainer.global_rank}__batch_{batch_idx}.pt")
-
-        if batch:  # to skip empty batches
-            torch.save(
-                {
-                    "prediction": prediction,
-                    "batch_indices": batch[
-                        "batch_indices"
-                    ],  # save `batch_indices` to get the information about the data index
-                },
-                result_path,
-            )
-
-    def write_on_epoch_end(self, trainer, pl_module, predictions, batch_indices):
-        raise NotImplementedError("write_on_epoch_end is not supported by BatchPredictionWriter")
 
 
 def infer_model(
@@ -96,7 +52,7 @@ def infer_model(
     )
 
     tempdir = tempfile.mkdtemp()
-    pred_writer = BatchPredictionWriter(tempdir, write_interval="batch")
+    pred_writer = PredictionWriter("/workspaces/bionemo-framework/temp", write_interval="epoch")
     trainer = nl.Trainer(
         accelerator="gpu",
         devices=2,
@@ -108,7 +64,7 @@ def infer_model(
     module = biobert_lightning_module(config=config, tokenizer=tokenizer)
     results = trainer.predict(module, datamodule=data_module)
 
-    return results, tempdir
+    return results, tempdir, trainer
 
 
 if __name__ == "__main__":
@@ -143,8 +99,9 @@ if __name__ == "__main__":
         # initial_ckpt_skip_keys_with_these_prefixes: List[str] = field(default_factory=list)   # reset to avoid skipping the head params
     )
 
-    results, tempdir = infer_model(config, data_module)
+    results, tempdir, trainer = infer_model(config, data_module)
     print(results)
 
     # Manually delete the directory when done
-    os.rmdir(str(tempdir))
+    # os.rmdir(str(tempdir))
+    print(tempdir)

@@ -214,7 +214,6 @@ class InMemorySingleValueDataset(Dataset):
             "labels": torch.tensor([target], dtype=torch.float),
             "loss_mask": loss_mask,
             "is_random": torch.zeros_like(tokenized_sequence, dtype=torch.int64),
-            "index": index,
         }
 
     def _tokenize(self, sequence: str) -> Tensor:

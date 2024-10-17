@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-from typing import Dict, Sequence, TypeVar
+from typing import Sequence, TypeVar
 
 import torch
 
@@ -29,7 +29,7 @@ def padding_collate_fn(
     padding_values: dict[str, int],
     min_length: int | None = None,
     max_length: int | None = None,
-) -> _T | Dict:
+) -> _T:
     """Collate function with padding.
 
     Args:
@@ -43,7 +43,7 @@ def padding_collate_fn(
     Returns:
         A collated batch with the same dictionary input structure.
     """
-    if not batch:
+    if len(batch) == 0:
         return {}
 
     for entry in batch:
@@ -58,9 +58,8 @@ def padding_collate_fn(
             return batched_tensors
         return torch.nn.functional.pad(batched_tensors, (0, min_length - batched_tensors.size(1)), value=padding_value)
 
-    batch_indices = [s.pop("index") for s in batch]
+    # TODO: only pad those keys in padding vals
     collated_batch = {k: _pad([s[k] for s in batch], padding_values[k]) for k in batch[0].keys()}  # type: ignore[return-value]
-    collated_batch["batch_indices"] = batch_indices  # type: ignore
     return collated_batch
 
 
@@ -87,7 +86,6 @@ def bert_padding_collate_fn(
         "labels": -1,
         "loss_mask": False,
         "is_random": 0,
-        "index": -1,
     }
     return padding_collate_fn(
         batch=batch,  # type: ignore[assignment]

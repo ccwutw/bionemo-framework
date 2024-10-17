@@ -280,10 +280,10 @@ class BionemoLightningModule(
         """In mcore the loss-function is part of the forward-pass when labels are provided."""
         return self.forward_step(batch)
 
-    def predict_step(self, batch, batch_idx: Optional[int] = None) -> Tensor | Dict:
+    def predict_step(self, batch, batch_idx: Optional[int] = None) -> Tensor:
         """Alias for forward_step."""
-        if not batch:
-            return {}
+        if len(batch) == 0:
+            return torch.empty(0)
         return self.forward_step(batch)
 
     def training_loss_reduction(self) -> MegatronLossType:

@@ -43,7 +43,6 @@ class BertSample(TypedDict):
     labels: Tensor
     loss_mask: Tensor
     is_random: Tensor
-    index: int
 
 
 class Tokenizer(Protocol):
