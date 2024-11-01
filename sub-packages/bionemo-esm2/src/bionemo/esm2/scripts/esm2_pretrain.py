@@ -100,29 +100,50 @@ def main(
         valid_database_path (Path): path to validation database
         num_nodes (int): Number of nodes to run on
         devices (int): number of devices
-        seq_length (int): sequence length
+        min_seq_length (Optional[int]): minimum sequence length
+        max_seq_length (int): maximum sequence length
         result_dir (Path): directory to store results, logs and checkpoints
-        wandb_entity (str): The team posting this run (default: your username or your default team)
-        wandb_project (str): The name of the project to which this run will belong.
-        wandb_tags (List[str]): Tags associated with this run.
-        wandb_group (str): A unique string shared by all runs in a given group
-        wandb_offline (bool): Run offline (data can be streamed later to wandb servers).
-        wandb_id (str): Sets the version, mainly used to resume a previous run.
-        wandb_anonymous (bool): Enables or explicitly disables anonymous logging.
-        wandb_log_model (bool): Save checkpoints in wandb dir to upload on W&B servers.
         num_steps (int): number of steps to train the model for
+        warmup_steps (int): number of steps for warmup phase
         limit_val_batches (int): limit the number of validation global batches to this many
-        val_check_interval (int): number of steps to periodically check the validation loss and save num_dataset_workers (
-       int): num dataset workers
+        val_check_interval (int): number of steps to periodically check the validation loss
+        log_every_n_steps (Optional[int]): log every n steps
+        num_dataset_workers (int): number of dataset workers
         biobert_spec_option (BiobertSpecOption): the biobert spec option (architecture) to use for this run
         lr (float): learning rate
         micro_batch_size (int): micro batch size, from this and parallelism settings we infer the global batch size
+        accumulate_grad_batches (int): number of batches to accumulate gradients for
         experiment_name (str): experiment name, this is the name used for the wandb run, and the sub-directory of the
             result_dir that stores the logs and checkpoints.
         resume_if_exists (bool): attempt to resume if the checkpoint exists [FIXME @skothenhill this doesn't work yet]
+        precision (PrecisionTypes): Precision type for training (e.g., float16, float32)
+        wandb_entity (Optional[str]): The team posting this run (default: your username or your default team)
+        wandb_project (Optional[str]): The name of the project to which this run will belong
+        wandb_offline (bool): Run offline (data can be streamed later to wandb servers).
+        wandb_tags (Optional[List[str]]): Tags associated with this run
+        wandb_group (Optional[str]): A unique string shared by all runs in a given group
+        wandb_id (Optional[str]): Sets the version, mainly used to resume a previous run
+        wandb_anonymous (Optional[bool]): Enables or explicitly disables anonymous logging
+        wandb_log_model (bool): Save checkpoints in wandb dir to upload on W&B servers
+        pipeline_model_parallel_size (int): pipeline model parallel size
+        tensor_model_parallel_size (int): tensor model parallel size
         create_tensorboard_logger (bool): create the tensorboard logger
-        restore_from_checkpoint_path (path): If set, restores the model from the directory passed in. Expects the
+        nemo1_init_path (Optional[Path]): Nemo 1 initialization path
+        restore_from_checkpoint_path (Optional[str]): If set, restores the model from the directory passed in. Expects the
             checkpoint to be created by using the ModelCheckpoint class and always_save_context=True.
+        save_best_checkpoint (bool): whether to save the best checkpoint
+        save_last_checkpoint (bool): whether to save the last checkpoint
+        metric_to_monitor_for_checkpoints (str): metric to monitor for checkpoints
+        save_top_k (int): number of top checkpoints to save
+        nsys_profiling (bool): whether to enable nsys profiling
+        nsys_start_step (int): start step for nsys profiling
+        nsys_end_step (Optional[int]): end step for nsys profiling
+        nsys_ranks (List[int]): ranks for nsys profiling
+        random_mask_strategy (RandomMaskStrategy): random mask strategy
+        num_layers (int): number of layers
+        hidden_size (int): hidden size
+        num_attention_heads (int): number of attention heads
+        ffn_hidden_size (int): feed forward hidden size
     """
     # Create the result directory if it does not exist.
     result_dir.mkdir(parents=True, exist_ok=True)

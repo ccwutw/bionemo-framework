@@ -68,6 +68,7 @@ def infer_model(
         min_seq_length (int): minimum sequence length to be padded. This should be at least equal to the length of largest sequence in the dataset
         include_hiddens (bool, optional): Whether to include hidden states in the output. Defaults to False.
         include_embeddings (bool, optional): Whether to include embeddings in the output. Defaults to False.
+        include_logits (bool, Optional): Whether to include token logits in the output. Defaults to False.
         micro_batch_size (int, optional): Micro batch size for inference. Defaults to 64.
         precision (PrecisionTypes, optional): Precision type for inference. Defaults to "bf16-mixed".
         tensor_model_parallel_size (int, optional): Tensor model parallel size for distributed inference. Defaults to 1.
