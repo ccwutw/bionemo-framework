@@ -1,5 +1,3 @@
-#!/bin/bash
-#
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-Apache2
 #
@@ -15,14 +13,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -xueo pipefail
-export PYTHONDONTWRITEBYTECODE=1
 
-source "$(dirname "$0")/utils.sh"
+import io
 
-if ! set_bionemo_home; then
-    exit 1
-fi
+from pytest import raises
 
-echo "Running pytest tests"
-pytest -v --nbval-lax docs/ scripts/ sub-packages/
+from infra_bionemo.new_project.utils import ask_yes_or_no
+
+
+def test_ask_yes_or_no(monkeypatch):
+    with raises(ValueError):
+        ask_yes_or_no("")
+
+    with monkeypatch.context() as ctx:
+        ctx.setattr("sys.stdin", io.StringIO("y"))
+        assert ask_yes_or_no("hello world?")
+
+    with monkeypatch.context() as ctx:
+        ctx.setattr("sys.stdin", io.StringIO("n"))
+        assert not ask_yes_or_no("hello world?")
+
+    with monkeypatch.context() as ctx:
+        ctx.setattr("sys.stdin", io.StringIO("loop once\ny"))
+        assert ask_yes_or_no("hello world?")

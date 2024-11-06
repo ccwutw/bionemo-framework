@@ -1,5 +1,3 @@
-#!/bin/bash
-#
 # SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: LicenseRef-Apache2
 #
@@ -14,15 +12,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-set -xueo pipefail
-export PYTHONDONTWRITEBYTECODE=1
-
-source "$(dirname "$0")/utils.sh"
-
-if ! set_bionemo_home; then
-    exit 1
-fi
-
-echo "Running pytest tests"
-pytest -v --nbval-lax docs/ scripts/ sub-packages/
