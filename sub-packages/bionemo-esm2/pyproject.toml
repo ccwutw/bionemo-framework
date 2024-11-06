@@ -18,6 +18,8 @@ dependencies = [
 ]
 
 [project.scripts]
+bionemo-esm2-train= "bionemo.esm2.run.main:main"
+bionemo-esm2-recipe= "bionemo.esm2.run.recipes:main"
 esm2_infer = "bionemo.esm2.scripts.esm2_infer:esm2_infer_entrypoint"
 esm2_pretrain = "bionemo.esm2.scripts.train_geneformer:esm2_pretrain_entrypoint"
 esm2_perplexity = "bionemo.esm2.scripts.esm2_dataset_perplexity:main_cli"
