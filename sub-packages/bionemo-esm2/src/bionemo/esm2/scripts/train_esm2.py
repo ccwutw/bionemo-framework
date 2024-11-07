@@ -38,7 +38,7 @@ from bionemo.llm.utils.datamodule_utils import float_or_int_or_none, infer_globa
 from bionemo.llm.utils.logger_utils import WandbConfig, setup_nemo_lightning_logger
 
 
-__all__: Sequence[str] = ("main", "esm2_pretrain_entrypoint", "get_parser")
+__all__: Sequence[str] = ("main", "train_esm2_entrypoint", "get_parser")
 
 
 def main(
@@ -291,7 +291,7 @@ def main(
     )
 
 
-def esm2_pretrain_entrypoint():
+def train_esm2_entrypoint():
     """Entrypoint for running inference on a geneformer checkpoint and data."""
     # 1. get arguments
     parser = get_parser()
@@ -650,4 +650,4 @@ def get_parser():
 
 
 if __name__ == "__main__":
-    esm2_pretrain_entrypoint()
+    train_esm2_entrypoint()

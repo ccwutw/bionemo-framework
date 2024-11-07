@@ -24,7 +24,7 @@ import pandas as pd
 import pytest
 from lightning.fabric.plugins.environments.lightning import find_free_network_port
 
-from bionemo.esm2.scripts.esm2_pretrain import get_parser, main
+from bionemo.esm2.scripts.train_esm2 import get_parser, main
 from bionemo.llm.model.biobert.transformer_specs import BiobertSpecOption
 from bionemo.llm.utils.datamodule_utils import parse_kwargs_to_arglist
 from bionemo.testing import megatron_parallel_state_utils
@@ -216,9 +216,7 @@ def test_pretrain_cli(tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inp
     result_dir = Path(tmpdir.mkdir("results"))
     open_port = find_free_network_port()
     # NOTE: if you need to change the following command, please update the README.md example.
-    script_dir = Path(__file__).parent
-    cmd_str = f"""python  \
-    {script_dir}/esm2_pretrain.py     \
+    cmd_str = f"""train_esm2     \
     --train-cluster-path {train_cluster_path} \
     --train-database-path {dummy_protein_dataset} \
     --valid-cluster-path {valid_cluster_path} \

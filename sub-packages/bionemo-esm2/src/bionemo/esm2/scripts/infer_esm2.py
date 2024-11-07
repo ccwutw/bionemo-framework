@@ -139,7 +139,7 @@ def infer_model(
     torch.save(results_dict, results_path)
 
 
-def esm2_infer_entrypoint():
+def infer_esm2_entrypoint():
     """Entrypoint for running inference on a geneformer checkpoint and data."""
     # 1. get arguments
     parser = get_parser()
@@ -261,4 +261,4 @@ def get_parser():
 
 
 if __name__ == "__main__":
-    esm2_infer_entrypoint()
+    infer_esm2_entrypoint()
