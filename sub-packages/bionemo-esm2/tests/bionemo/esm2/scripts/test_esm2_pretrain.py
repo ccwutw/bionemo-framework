@@ -22,9 +22,9 @@ from typing import Dict
 
 import pandas as pd
 import pytest
-from esm2_pretrain import main, parser  # TODO: needs to be refactored to a package and imported!
 from lightning.fabric.plugins.environments.lightning import find_free_network_port
 
+from bionemo.esm2.scripts.esm2_pretrain import get_parser, main
 from bionemo.llm.model.biobert.transformer_specs import BiobertSpecOption
 from bionemo.llm.utils.datamodule_utils import parse_kwargs_to_arglist
 from bionemo.testing import megatron_parallel_state_utils
@@ -287,6 +287,7 @@ def test_required_train_cluster_path(required_args_reference):
     """
     required_args_reference.pop("train_cluster_path")
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     with pytest.raises(SystemExit):
         parser.parse_args(arglist)
 
@@ -300,6 +301,7 @@ def test_required_train_database_path(required_args_reference):
     """
     required_args_reference.pop("train_database_path")
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     with pytest.raises(SystemExit):
         parser.parse_args(arglist)
 
@@ -313,6 +315,7 @@ def test_required_valid_cluster_path(required_args_reference):
     """
     required_args_reference.pop("valid_cluster_path")
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     with pytest.raises(SystemExit):
         parser.parse_args(arglist)
 
@@ -326,6 +329,7 @@ def test_required_valid_database_path(required_args_reference):
     """
     required_args_reference.pop("valid_database_path")
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     with pytest.raises(SystemExit):
         parser.parse_args(arglist)
 
@@ -342,6 +346,7 @@ def test_limit_val_batches_is_float(required_args_reference, limit_val_batches):
     """
     required_args_reference["limit_val_batches"] = limit_val_batches
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     parser.parse_args(arglist)
 
 
@@ -356,6 +361,7 @@ def test_limit_val_batches_is_float_string(required_args_reference, limit_val_ba
     """
     required_args_reference["limit_val_batches"] = limit_val_batches
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     parser.parse_args(arglist)
 
 
@@ -369,6 +375,7 @@ def test_limit_val_batches_is_none(required_args_reference, limit_val_batches):
     """
     required_args_reference["limit_val_batches"] = limit_val_batches
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     args = parser.parse_args(arglist)
     assert args.limit_val_batches is None
 
@@ -384,4 +391,5 @@ def test_limit_val_batches_is_int(required_args_reference, limit_val_batches):
     """
     required_args_reference["limit_val_batches"] = limit_val_batches
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     parser.parse_args(arglist)
