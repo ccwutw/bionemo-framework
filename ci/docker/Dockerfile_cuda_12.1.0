@@ -1,7 +1,9 @@
 # Ubuntu 20.04 ???
 ARG BASE_IMAGE=nvcr.io/nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
 ARG PYTHON_VERSION=3.10
+ARG PYTORCH_VERSION=2.3.0
 FROM ${BASE_IMAGE} AS python_base
+ARG PYTHON_VERSION
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
@@ -61,4 +63,8 @@ EOF
 #    UV_PROJECT_ENVIRONMENT=/venv
 #
 #
-#FROM python_base AS pytorch_base
+FROM python_base AS pytorch_base
+ARG PYTORCH_VERSION
+ENV PYTORCH_VERSION=${PYTORCH_VERSION}
+
+RUN pip install torch==${PYTORCH_VERSION}
