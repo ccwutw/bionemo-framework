@@ -1,0 +1,41 @@
+# Ubuntu 20.04 ???
+ARG BASE_IMAGE=nvcr.io/nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
+ARG PYTHON_VERSION=3.10
+FROM ${BASE_IMAGE} AS python_base
+
+RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+    <<EOF
+apt-get update -qy
+apt-get install -qyy \
+    -o APT::Install-Recommends=false \
+    -o APT::Install-Suggests=false \
+    build-essential \
+    ca-certificates \
+    curl \
+    software-properties-common \
+    git \
+    ninja-build \
+    cmake \
+    openmpi-bin \
+    libopenmpi-dev \
+
+add-apt-repository ppa:deadsnakes/ppa
+apt-get update -qy
+apt-get install -qyy \
+    "python${PYTHON_VERSION}" \
+    "python${PYTHON_VERSION}-dev"
+EOF
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# - Silence uv complaining about not being able to use hard links,
+# - tell uv to byte-compile packages for faster application startups,
+# - prevent uv from accidentally downloading isolated Python builds,
+# - pick a Python,
+# - and finally declare `/venv` as the target for `uv sync`.
+ENV UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PYTHON=python3.10 \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_PROJECT_ENVIRONMENT=/venv
