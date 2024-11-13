@@ -26,6 +26,8 @@ apt-get update -qy
 apt-get install -qyy \
     "python${PYTHON_VERSION}" \
     "python${PYTHON_VERSION}-dev"
+
+rm -rf /var/lib/apt/lists/*
 EOF
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
