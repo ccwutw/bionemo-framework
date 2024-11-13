@@ -65,8 +65,7 @@ EOF
 
 WORKDIR /build/python
 RUN <<EOF
-
-wget https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz
+curl -O https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz
 tar -zxf Python-${PYTHON_VERSION}.tgz
 cd Python-${PYTHON_VERSION}
 ./configure --enable-optimizations --prefix=/usr
