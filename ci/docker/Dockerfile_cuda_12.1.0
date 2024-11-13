@@ -5,6 +5,7 @@ ARG PYTORCH_VERSION=2.3.0
 ARG MAX_JOBS=4
 ARG APEX_COMMIT=810ffae374a2b9cb4b5c5e28eaeca7d7998fca0c
 ARG TE_COMMIT=7d576ed25266a17a7b651f2c12e8498f67e0baea
+ARG NEMO_RUN_TAG=34259bd3e752fef94045a9a019e4aaf62bd11ce2
 
 FROM ${BASE_IMAGE} AS python_base
 ARG PYTHON_VERSION
@@ -56,7 +57,7 @@ RUN apt-get update -y && apt-get upgrade -y && apt-get install -qyy \
     openmpi-bin \
     libopenmpi-dev \
     checkinstall \
-    libreadline-gplv2-dev \
+    libreadline-dev \
     libncursesw5-dev \
     libssl-dev \
     libsqlite3-dev \
@@ -100,12 +101,12 @@ ARG MAX_JOBS
 ENV MAX_JOBS=${MAX_JOBS}
 ARG APEX_COMMIT
 ARG TE_COMMIT
+ARG NEMO_RUN_TAG
 
 WORKDIR /build/
 RUN pip install torch==${PYTORCH_VERSION}
 
 # See NeMo readme for the latest tested versions of these libraries
-
 RUN git clone https://github.com/NVIDIA/apex.git && \
   cd apex && \
   git checkout ${APEX_COMMIT} && \
@@ -113,10 +114,48 @@ RUN git clone https://github.com/NVIDIA/apex.git && \
   --config-settings "--build-option=--cpp_ext --cuda_ext --fast_layer_norm --distributed_adam --deprecated_fused_adam --group_norm"
 
 # Transformer Engine pre-1.7.0. 1.7 standardizes the meaning of bits in the attention mask to match
-
 RUN git clone https://github.com/NVIDIA/TransformerEngine.git && \
   cd TransformerEngine && \
   git fetch origin ${TE_COMMIT} && \
   git checkout FETCH_HEAD && \
   git submodule init && git submodule update && \
   NVTE_FRAMEWORK=pytorch NVTE_WITH_USERBUFFERS=1 MPI_HOME=/usr/local/mpi pip install . \
+
+# Check the nemo dependency for causal conv1d and make sure this checkout
+# tag matches. If not, update the tag in the following line.
+RUN CAUSAL_CONV1D_FORCE_BUILD=TRUE pip --disable-pip-version-check --no-cache-dir install \
+  git+https://github.com/Dao-AILab/causal-conv1d.git@v1.2.0.post2 \
+
+# Mamba dependancy installation
+RUN pip --disable-pip-version-check --no-cache-dir install \
+  git+https://github.com/state-spaces/mamba.git@v2.0.3
+
+# needed to install nemo-run
+RUN pip install hatchling
+
+RUN pip install nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${NEMU_RUN_TAG}
+
+
+
+FROM pytorch_base AS bionemo_base
+
+WORKDIR /workspace/bionemo2
+
+# Install 3rd-party deps and bionemo submodules.
+COPY ./3rdparty /workspace/bionemo2/3rdparty
+COPY ./sub-packages /workspace/bionemo2/sub-packages
+
+# Note, we need to mount the .git folder here so that setuptools-scm is able to fetch git tag for version.
+RUN --mount=type=bind,source=./.git,target=./.git \
+  --mount=type=bind,source=./requirements-test.txt,target=/requirements-test.txt \
+  --mount=type=bind,source=./requirements-cve.txt,target=/requirements-cve.txt \
+  <<EOF
+set -eo pipefail
+pip install --no-build-isolation -e \
+  ./3rdparty/* \
+  ./sub-packages/bionemo-* \
+  -r /requirements-cve.txt \
+  -r /requirements-test.txt
+rm -rf ./3rdparty
+rm -rf /tmp/*
+EOF
