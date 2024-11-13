@@ -79,7 +79,7 @@ make install
 ln -s /usr/bin/python3 /usr/bin/python
 
 python -m ensurepip --upgrade
-ln -s /usr/bin/pip /usr/bin/pip
+ln -s /usr/bin/pip3 /usr/bin/pip
 EOF
 
 #COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
