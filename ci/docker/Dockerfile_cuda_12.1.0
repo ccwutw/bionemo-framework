@@ -2,45 +2,24 @@
 ARG BASE_IMAGE=nvcr.io/nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
 ARG PYTHON_VERSION=3.10
 ARG PYTORCH_VERSION=2.3.0
+ARG MAX_JOBS=4
+ARG APEX_COMMIT=810ffae374a2b9cb4b5c5e28eaeca7d7998fca0c
+ARG TE_COMMIT=7d576ed25266a17a7b651f2c12e8498f67e0baea
+
 FROM ${BASE_IMAGE} AS python_base
 ARG PYTHON_VERSION
-ENV PYTHON_VERSION=${PYTHON_VERSION}
+ARG MAX_JOBS
+ENV MAX_JOBS=${MAX_JOBS}
 
-RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
-    <<EOF
-apt update -y
-apt upgrade -y
-apt-get install -qyy \
-    -o APT::Install-Recommends=false \
-    -o APT::Install-Suggests=false \
-    curl \
-    build-essential \
-    ca-certificates \
-    curl \
-    software-properties-common \
-    git \
-    ninja-build \
-    cmake \
-    openmpi-bin \
-    libopenmpi-dev \
-    checkinstall \
-    libreadline-gplv2-dev \
-    libncursesw5-dev \
-    libssl-dev \
-    libsqlite3-dev \
-    tk-dev \
-    libgdbm-dev \
-    libc6-dev \
-    libbz2-dev \
-    libffi-dev \
-    zlib1g-dev
-rm -rf /var/lib/apt/lists/*
-EOF
-
-#RUN apt-get update -y && apt-get upgrade -y && apt-get install -qyy \
+#RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+#    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+#    <<EOF
+#apt update -y
+#apt upgrade -y
+#apt-get install -qyy \
 #    -o APT::Install-Recommends=false \
 #    -o APT::Install-Suggests=false \
+#    curl \
 #    build-essential \
 #    ca-certificates \
 #    curl \
@@ -60,8 +39,34 @@ EOF
 #    libc6-dev \
 #    libbz2-dev \
 #    libffi-dev \
-#    zlib1g-dev \
-#    && rm -rf /var/lib/apt/lists/*
+#    zlib1g-dev
+#rm -rf /var/lib/apt/lists/*
+#EOF
+
+RUN apt-get update -y && apt-get upgrade -y && apt-get install -qyy \
+    -o APT::Install-Recommends=false \
+    -o APT::Install-Suggests=false \
+    build-essential \
+    ca-certificates \
+    curl \
+    software-properties-common \
+    git \
+    ninja-build \
+    cmake \
+    openmpi-bin \
+    libopenmpi-dev \
+    checkinstall \
+    libreadline-gplv2-dev \
+    libncursesw5-dev \
+    libssl-dev \
+    libsqlite3-dev \
+    tk-dev \
+    libgdbm-dev \
+    libc6-dev \
+    libbz2-dev \
+    libffi-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build/python
 RUN <<EOF
@@ -87,8 +92,31 @@ EOF
 #    UV_PROJECT_ENVIRONMENT=/venv
 #
 #
+
+
 FROM python_base AS pytorch_base
 ARG PYTORCH_VERSION
-ENV PYTORCH_VERSION=${PYTORCH_VERSION}
+ARG MAX_JOBS
+ENV MAX_JOBS=${MAX_JOBS}
+ARG APEX_COMMIT
+ARG TE_COMMIT
 
+WORKDIR /build/
 RUN pip install torch==${PYTORCH_VERSION}
+
+# See NeMo readme for the latest tested versions of these libraries
+
+RUN git clone https://github.com/NVIDIA/apex.git && \
+  cd apex && \
+  git checkout ${APEX_COMMIT} && \
+  pip install . -v --no-build-isolation --disable-pip-version-check --no-cache-dir \
+  --config-settings "--build-option=--cpp_ext --cuda_ext --fast_layer_norm --distributed_adam --deprecated_fused_adam --group_norm"
+
+# Transformer Engine pre-1.7.0. 1.7 standardizes the meaning of bits in the attention mask to match
+
+RUN git clone https://github.com/NVIDIA/TransformerEngine.git && \
+  cd TransformerEngine && \
+  git fetch origin ${TE_COMMIT} && \
+  git checkout FETCH_HEAD && \
+  git submodule init && git submodule update && \
+  NVTE_FRAMEWORK=pytorch NVTE_WITH_USERBUFFERS=1 MPI_HOME=/usr/local/mpi pip install . \
