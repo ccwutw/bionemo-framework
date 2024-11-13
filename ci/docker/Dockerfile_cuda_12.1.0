@@ -1,6 +1,7 @@
 # Ubuntu 20.04 ???
 ARG BASE_IMAGE=nvcr.io/nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
 ARG PYTHON_VERSION=3.10
+ENV PYTHON_VERSION=${PYTHON_VERSION}
 FROM ${BASE_IMAGE} AS python_base
 
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
@@ -39,3 +40,4 @@ ENV UV_LINK_MODE=copy \
     UV_PYTHON=python3.10 \
     UV_PYTHON_DOWNLOADS=never \
     UV_PROJECT_ENVIRONMENT=/venv
+
