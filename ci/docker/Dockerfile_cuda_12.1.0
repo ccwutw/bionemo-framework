@@ -76,9 +76,11 @@ tar -zxf Python-${PYTHON_VERSION}.tgz
 cd Python-${PYTHON_VERSION}
 ./configure --enable-optimizations --prefix=/usr
 make install
-EOF
+ln -s /usr/bin/python3 /usr/bin/python
 
-RUN python -m ensurepip --upgrade
+python -m ensurepip --upgrade
+ln -s /usr/bin/pip /usr/bin/pip
+EOF
 
 #COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 #
