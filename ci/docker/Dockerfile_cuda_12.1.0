@@ -78,6 +78,8 @@ cd Python-${PYTHON_VERSION}
 make install
 EOF
 
+RUN python -m ensurepip --upgrade
+
 #COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 #
 ## - Silence uv complaining about not being able to use hard links,
@@ -138,6 +140,8 @@ FROM pytorch_base AS bionemo_base
 
 WORKDIR /workspace/bionemo2
 
+COPY ./ci/docker/clobber_dependencies_into_requirements_txt.sh /workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh
+
 # Install 3rd-party deps and bionemo submodules.
 COPY ./3rdparty /workspace/bionemo2/3rdparty
 COPY ./sub-packages /workspace/bionemo2/sub-packages
@@ -148,11 +152,14 @@ RUN --mount=type=bind,source=./.git,target=./.git \
   --mount=type=bind,source=./requirements-cve.txt,target=/requirements-cve.txt \
   <<EOF
 set -eo pipefail
+
+/workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh
+
 pip install --no-build-isolation -e \
   ./3rdparty/* \
-  ./sub-packages/bionemo-* \
+  -r all_requirements.txt \
   -r /requirements-cve.txt \
   -r /requirements-test.txt
-rm -rf ./3rdparty
+
 rm -rf /tmp/*
 EOF
