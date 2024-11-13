@@ -188,8 +188,8 @@ export MY_DATA_SOURCE="pbss"
 # The fastest transformer engine environment variables in testing were the following two
 TEST_DATA_DIR=$(download_bionemo_data esm2/testdata_esm2_pretrain:2.0 --source $MY_DATA_SOURCE); \
 ESM2_650M_CKPT=$(download_bionemo_data esm2/650m:2.0 --source $MY_DATA_SOURCE); \
-python  \
-    scripts/protein/esm2/esm2_pretrain.py     \
+
+train_esm2     \
     --train-cluster-path ${TEST_DATA_DIR}/2024_03_sanity/train_clusters_sanity.parquet     \
     --train-database-path ${TEST_DATA_DIR}/2024_03_sanity/train_sanity.db     \
     --valid-cluster-path ${TEST_DATA_DIR}/2024_03_sanity/valid_clusters.parquet     \

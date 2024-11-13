@@ -277,12 +277,13 @@ llm.train(
 )
 ```
 
-Or simply call `esm2_pretrain.py` directly.
+Or simply use the ESM2 pretrain located in `$WORKDIR/sub-packages/bionemo-esm2/src/bionemo/esm2/scripts/train_esm2.py`. This script can be called either by directly using python or the installed executable `train_esm2`:
+
 ```bash
 # Enable fused attention in transformer engine for speed-up
 DATA_DIR=$(download_bionemo_data esm2/testdata_esm2_pretrain:2.0 --source ngc)
 
-python scripts/protein/esm2/esm2_pretrain.py \
+train_esm2 \
     --train-cluster-path ${DATA_DIR}/2024_03_sanity/train_clusters_sanity.parquet \
     --train-database-path ${DATA_DIR}/2024_03_sanity/train_sanity.db \
     --valid-cluster-path ${DATA_DIR}/2024_03_sanity/valid_clusters.parquet \

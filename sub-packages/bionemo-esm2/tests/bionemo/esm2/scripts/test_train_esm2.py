@@ -22,9 +22,9 @@ from typing import Dict
 
 import pandas as pd
 import pytest
-from esm2_pretrain import main, parser  # TODO: needs to be refactored to a package and imported!
 from lightning.fabric.plugins.environments.lightning import find_free_network_port
 
+from bionemo.esm2.scripts.train_esm2 import get_parser, main
 from bionemo.llm.model.biobert.transformer_specs import BiobertSpecOption
 from bionemo.llm.utils.datamodule_utils import parse_kwargs_to_arglist
 from bionemo.testing import megatron_parallel_state_utils
@@ -212,9 +212,7 @@ def test_pretrain_cli(tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inp
     result_dir = Path(tmpdir.mkdir("results"))
     open_port = find_free_network_port()
     # NOTE: if you need to change the following command, please update the README.md example.
-    script_dir = Path(__file__).parent
-    cmd_str = f"""python  \
-    {script_dir}/esm2_pretrain.py     \
+    cmd_str = f"""train_esm2     \
     --train-cluster-path {train_cluster_path} \
     --train-database-path {dummy_protein_dataset} \
     --valid-cluster-path {valid_cluster_path} \
@@ -280,6 +278,7 @@ def test_required_train_cluster_path(required_args_reference):
     """
     required_args_reference.pop("train_cluster_path")
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     with pytest.raises(SystemExit):
         parser.parse_args(arglist)
 
@@ -293,6 +292,7 @@ def test_required_train_database_path(required_args_reference):
     """
     required_args_reference.pop("train_database_path")
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     with pytest.raises(SystemExit):
         parser.parse_args(arglist)
 
@@ -306,6 +306,7 @@ def test_required_valid_cluster_path(required_args_reference):
     """
     required_args_reference.pop("valid_cluster_path")
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     with pytest.raises(SystemExit):
         parser.parse_args(arglist)
 
@@ -319,6 +320,7 @@ def test_required_valid_database_path(required_args_reference):
     """
     required_args_reference.pop("valid_database_path")
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     with pytest.raises(SystemExit):
         parser.parse_args(arglist)
 
@@ -335,6 +337,7 @@ def test_limit_val_batches_is_float(required_args_reference, limit_val_batches):
     """
     required_args_reference["limit_val_batches"] = limit_val_batches
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     parser.parse_args(arglist)
 
 
@@ -349,6 +352,7 @@ def test_limit_val_batches_is_float_string(required_args_reference, limit_val_ba
     """
     required_args_reference["limit_val_batches"] = limit_val_batches
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     parser.parse_args(arglist)
 
 
@@ -362,6 +366,7 @@ def test_limit_val_batches_is_none(required_args_reference, limit_val_batches):
     """
     required_args_reference["limit_val_batches"] = limit_val_batches
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     args = parser.parse_args(arglist)
     assert args.limit_val_batches is None
 
@@ -377,4 +382,5 @@ def test_limit_val_batches_is_int(required_args_reference, limit_val_batches):
     """
     required_args_reference["limit_val_batches"] = limit_val_batches
     arglist = parse_kwargs_to_arglist(required_args_reference)
+    parser = get_parser()
     parser.parse_args(arglist)
