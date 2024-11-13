@@ -44,7 +44,7 @@ ENV MAX_JOBS=${MAX_JOBS}
 #rm -rf /var/lib/apt/lists/*
 #EOF
 
-RUN apt update -y && apt upgrade -y && apt-get install -y \
+RUN apt update -y && apt upgrade -y && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     -o APT::Install-Recommends=false \
     -o APT::Install-Suggests=false \
     build-essential \
