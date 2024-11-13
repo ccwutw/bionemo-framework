@@ -1,8 +1,8 @@
 # Ubuntu 20.04 ???
 ARG BASE_IMAGE=nvcr.io/nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
 ARG PYTHON_VERSION=3.10
-ENV PYTHON_VERSION=${PYTHON_VERSION}
 FROM ${BASE_IMAGE} AS python_base
+ENV PYTHON_VERSION=${PYTHON_VERSION}
 
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
