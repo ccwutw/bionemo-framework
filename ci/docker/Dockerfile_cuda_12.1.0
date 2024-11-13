@@ -1,5 +1,5 @@
 # Ubuntu 20.04 ???
-ARG BASE_IMAGE=nvcr.io/nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
+#ARG BASE_IMAGE=nvcr.io/nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04
 ARG PYTHON_VERSION=3.10.12
 ARG PYTORCH_VERSION=2.3.0
 ARG MAX_JOBS=4
@@ -7,7 +7,8 @@ ARG APEX_COMMIT=810ffae374a2b9cb4b5c5e28eaeca7d7998fca0c
 ARG TE_COMMIT=7d576ed25266a17a7b651f2c12e8498f67e0baea
 ARG NEMO_RUN_TAG=34259bd3e752fef94045a9a019e4aaf62bd11ce2
 
-FROM ${BASE_IMAGE} AS python_base
+#FROM ${BASE_IMAGE} AS python_base
+FROM nvcr.io/nvidia/cuda:12.1.1-cudnn8-devel-ubuntu20.04 as python_base
 ARG PYTHON_VERSION
 ARG MAX_JOBS
 ENV MAX_JOBS=${MAX_JOBS}
@@ -107,7 +108,8 @@ ARG TE_COMMIT
 ARG NEMO_RUN_TAG
 
 WORKDIR /build/
-RUN pip install torch==${PYTORCH_VERSION}
+# the --index-url **MUST MATCH** the base image CUDA version !!!
+RUN pip install --index-url https://download.pytorch.org/whl/cu121 torch==${PYTORCH_VERSION}
 
 # See NeMo readme for the latest tested versions of these libraries
 RUN git clone https://github.com/NVIDIA/apex.git && \
