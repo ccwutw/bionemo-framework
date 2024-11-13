@@ -192,8 +192,8 @@ def main(
         gradient_as_bucket_view=True,
         # FIXME there are intermittent errors with async checkpoint saving.
         #  see https://wandb.ai/clara-discovery/geneformer_bionemo2_goodslurm/runs/uAFi7DzI/logs
-        # ckpt_async_save=True,
-        # ckpt_parallel_load=True,
+        ckpt_async_save=True,
+        ckpt_parallel_load=True,
     )
 
     # for wandb integration
@@ -326,6 +326,7 @@ def main(
         save_top_k=save_top_k,
         every_n_train_steps=val_check_interval,
         always_save_context=True,  # Enables the .nemo file-like checkpointing where all IOMixins are under SerDe
+        filename='{epoch}-{val_loss:.2f}-{step}-{consumed_samples}'
     )
 
     # Setup the logger and train the model
