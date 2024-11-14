@@ -107,7 +107,12 @@ FROM python_base AS pytorch_base
 ARG PYTORCH_VERSION
 ARG MAX_JOBS
 ENV MAX_JOBS=${MAX_JOBS}
-ENV CUDA_HOME=/usr/local/cuda-12
+#ENV CUDA_HOME=/usr/local/cuda-12
+ENV CUDA_HOME=/usr/local/cuda
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_REQUIRE_CUDA=cuda>=9.0
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+#ENV LD_LIBRARY_PATH="/usr/local/lib/python3.10/dist-packages/torch/lib:/usr/local/lib/python3.10/dist-packages/torch_tensorrt/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
 
 WORKDIR /build/
 # the --index-url **MUST MATCH** the base image CUDA version !!!
@@ -115,11 +120,13 @@ RUN pip install --index-url https://download.pytorch.org/whl/cu121 torch==${PYTO
 
 
 FROM pytorch_base AS dl_deps_base
-ENV MAX_JOBS=${MAX_JOBS}
 ARG APEX_COMMIT
 ARG TE_COMMIT
 ARG NEMO_RUN_TAG
-ENV CUDA_HOME=/usr/local/cuda-12
+ENV CUDA_HOME=/usr/local/cuda
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_REQUIRE_CUDA=cuda>=9.0
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
 
 # See NeMo readme for the latest tested versions of these libraries
 RUN git clone https://github.com/NVIDIA/apex.git && \
@@ -155,8 +162,6 @@ RUN pip install nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${NEMO_RUN_T
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 FROM dl_deps_base AS bionemo_base
-ENV MAX_JOBS=${MAX_JOBS}
-ENV CUDA_HOME=/usr/local/cuda-12
 
 WORKDIR /workspace/bionemo2
 
