@@ -4,7 +4,7 @@ ARG PYTHON_VERSION=3.10.12
 ARG PYTORCH_VERSION=2.3.0
 ARG MAX_JOBS=4
 ARG APEX_COMMIT=810ffae374a2b9cb4b5c5e28eaeca7d7998fca0c
-ARG TE_COMMIT=7d576ed25266a17a7b651f2c12e8498f67e0baea
+ARG TE_COMMIT=744624d004f4514ffbaa90ac83e214311c86c607
 ARG NEMO_RUN_TAG=34259bd3e752fef94045a9a019e4aaf62bd11ce2
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -70,6 +70,15 @@ RUN apt update -y && apt upgrade -y && DEBIAN_FRONTEND=noninteractive apt-get in
     libbz2-dev \
     libffi-dev \
     zlib1g-dev \
+    automake \
+    libtool \
+    libnl-3-200 \
+    libnl-3-dev \
+    libnl-route-3-200 \
+    libnl-route-3-dev \
+    libibverbs-dev \
+    librdmacm-dev \
+    libhwloc-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build/python
@@ -136,6 +145,15 @@ ARG NEMO_RUN_TAG
 # look at: https://github.com/pytorch/pytorch/blob/main/Dockerfile
 # look at: https://github.com/huggingface/text-generation-inference/blob/main/Dockerfile
 
+WORKDIR /build/openmpi
+RUN curl -O https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.5.tar.gz && \
+    tar -zxf openmpi-4.1.5.tar.gz && \
+    cd openmpi-4.1.5 && \
+    ./configure && \
+    make -k all install \
+ENV MPI_HOME=/usr/local/lib/openmpi
+
+WORKDIR /build
 # See NeMo readme for the latest tested versions of these libraries
 RUN git clone https://github.com/NVIDIA/apex.git && \
   cd apex && \
@@ -149,7 +167,7 @@ RUN git clone https://github.com/NVIDIA/TransformerEngine.git && \
   cd TransformerEngine && \
   git checkout ${TE_COMMIT} && \
   git submodule init && git submodule update && \
-  NVTE_FRAMEWORK=pytorch NVTE_WITH_USERBUFFERS=1 MPI_HOME=/usr/local/mpi pip install .
+  NVTE_FRAMEWORK=pytorch NVTE_WITH_USERBUFFERS=1 MPI_HOME=/usr/local/lib/openmpi pip install .
 
 # Check the nemo dependency for causal conv1d and make sure this checkout
 # tag matches. If not, update the tag in the following line.
@@ -160,10 +178,8 @@ RUN CAUSAL_CONV1D_FORCE_BUILD=TRUE pip --disable-pip-version-check --no-cache-di
 RUN pip --disable-pip-version-check --no-cache-dir install \
   git+https://github.com/state-spaces/mamba.git@v2.0.3
 
-# needed to install nemo-run
-RUN pip install hatchling
-
-RUN pip install nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${NEMO_RUN_TAG}
+# note: hatchling needed to install nemo-run
+RUN pip install hatchling nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${NEMO_RUN_TAG}
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
