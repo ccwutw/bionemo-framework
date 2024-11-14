@@ -108,6 +108,7 @@ ARG PYTORCH_VERSION
 ARG MAX_JOBS
 ENV MAX_JOBS=${MAX_JOBS}
 ENV CUDA_HOME="/usr/local/cuda-12.1"
+ENV PATH="${CUDA_HOME}/bin:${PATH}"
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_REQUIRE_CUDA=cuda>=9.0
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
@@ -118,6 +119,8 @@ ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 #ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
 #ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:$PATH
 #ENV LD_LIBRARY_PATH="/usr/local/lib/python3.10/dist-packages/torch/lib:/usr/local/lib/python3.10/dist-packages/torch_tensorrt/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
+
+RUN rm /usr/local/cuda && rm /usr/local/cuda-12
 
 WORKDIR /build/
 # the --index-url **MUST MATCH** the base image CUDA version !!!
