@@ -18,6 +18,8 @@ import argparse
 from pathlib import Path
 from typing import Optional
 
+import yaml
+
 from nemo.utils import logging
 
 from bionemo.core.utils.dtypes import PrecisionTypes
@@ -370,7 +372,7 @@ def esm2_tiny_test_recipe(args):
 
 def main():  # noqa: D103
     def parse_args():
-        parser = argparse.ArgumentParser(description="Create ESM2 configuration JSON.")
+        parser = argparse.ArgumentParser(description="Create ESM2 configuration YAML.")
         parser.add_argument(
             "--recipe",
             type=str,
@@ -382,9 +384,9 @@ def main():  # noqa: D103
         parser.add_argument(
             "--dest",
             type=str,
-            default="./esm2-recipe.json",
+            default="./esm2-recipe.yaml",
             required=True,
-            help="Path to the JSON configuration file.",
+            help="Path to the YAML configuration file.",
         )
 
         parser.add_argument(
@@ -414,7 +416,7 @@ def main():  # noqa: D103
         args = parser.parse_args()
         return args
 
-    # Simple example for creating a JSON from recipes.
+    # Simple example for creating a YAML from recipes.
     args = parse_args()
 
     if args.recipe == "8m":
@@ -429,15 +431,15 @@ def main():  # noqa: D103
     else:
         raise ValueError(f"Invalid recipe choice. {args.recipe=}")
 
-    # Serialize to JSON
-    json_str = config.model_dump_json(indent=2)
+    # Serialize to YAML 
+    yaml_str = yaml.dump(config.model_dump(), indent=2)
 
     # Save to file
     with open(
         args.dest,
         "w",
     ) as f:
-        f.write(json_str)
+        f.write(yaml_str)
     logging.info(f"Saved configuration to {args.dest=}")
 
 

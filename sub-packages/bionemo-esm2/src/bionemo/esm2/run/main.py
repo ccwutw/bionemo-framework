@@ -18,6 +18,8 @@ import argparse
 import json
 from typing import Optional
 
+import yaml
+
 from bionemo.esm2.run.config_models import ESM2DataConfig, ExposedESM2PretrainConfig
 from bionemo.llm.run.config_models import MainConfig
 from bionemo.llm.train import NsysConfig, train
@@ -88,7 +90,7 @@ def main():  # noqa: D103
 
     def load_config(config_path: str, model_config_t: Optional[str], data_config_t: Optional[str]) -> MainConfig:
         with open(config_path, "r") as f:
-            config_dict = json.load(f)
+            config_dict = yaml.safe_load(f)
 
         # model/data_config_t is used to select the parser dynamically.
         if model_config_t is None or model_config_t == "ExposedESM2PretrainConfig":
