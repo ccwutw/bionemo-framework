@@ -107,6 +107,8 @@ ARG APEX_COMMIT
 ARG TE_COMMIT
 ARG NEMO_RUN_TAG
 
+ENV CUDA_HOME=/usr/local/cuda-12
+
 WORKDIR /build/
 # the --index-url **MUST MATCH** the base image CUDA version !!!
 RUN pip install --index-url https://download.pytorch.org/whl/cu121 torch==${PYTORCH_VERSION}
@@ -167,4 +169,7 @@ pip install --no-build-isolation -e \
   -r /requirements-test.txt
 
 rm -rf /tmp/*
+
+pip install --no-deps -e ./sub-packages/bionemo-*
+
 EOF
