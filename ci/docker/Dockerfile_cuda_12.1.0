@@ -150,7 +150,7 @@ RUN curl -O https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.5.ta
     tar -zxf openmpi-4.1.5.tar.gz && \
     cd openmpi-4.1.5 && \
     ./configure && \
-    make -k all install \
+    make -k all install
 ENV MPI_HOME=/usr/local/lib/openmpi
 
 WORKDIR /build
