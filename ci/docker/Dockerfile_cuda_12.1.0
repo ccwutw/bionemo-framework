@@ -112,7 +112,10 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_REQUIRE_CUDA=cuda>=9.0
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
 ENV CUDA_ARCH_LIST="75-real;80-real;86-real;89-real;90-real"
-ENV TORCH_CUDA_ARCH_LIST='8.0'
+ENV TORCH_CUDA_ARCH_LIST="7.0 7.2 7.5 8.0 8.6 8.7 8.9 9.0 9.0a"
+ENV TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
+#ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+#ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:$PATH
 #ENV LD_LIBRARY_PATH="/usr/local/lib/python3.10/dist-packages/torch/lib:/usr/local/lib/python3.10/dist-packages/torch_tensorrt/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
 
 WORKDIR /build/
