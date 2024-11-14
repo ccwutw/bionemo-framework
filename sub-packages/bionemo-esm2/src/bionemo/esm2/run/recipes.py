@@ -19,7 +19,6 @@ from pathlib import Path
 from typing import Optional
 
 import yaml
-
 from nemo.utils import logging
 
 from bionemo.core.utils.dtypes import PrecisionTypes
@@ -431,7 +430,7 @@ def main():  # noqa: D103
     else:
         raise ValueError(f"Invalid recipe choice. {args.recipe=}")
 
-    # Serialize to YAML 
+    # Serialize to YAML
     yaml_str = yaml.dump(config.model_dump(), indent=2)
 
     # Save to file

@@ -17,9 +17,8 @@ import pathlib
 from dataclasses import dataclass, field
 from typing import List, Optional, Type
 
-from pydantic import field_serializer, field_validator
-
 from nemo.utils import logging
+from pydantic import field_serializer, field_validator
 from tokenizers import Tokenizer
 
 from bionemo.geneformer.api import GeneformerConfig
@@ -75,13 +74,13 @@ class GeneformerPretrainingDataConfig(DataConfig[SingleCellDataModule]):
     num_dataset_workers: int = 0
 
     @field_serializer("result_dir")
-    def serialize_paths(self, value: pathlib.Path) -> str:
+    def serialize_paths(self, value: pathlib.Path) -> str:  # noqa: D102
         return serialize_path_or_str(value)
 
     @field_validator("result_dir")
-    def deserialize_paths(cls, value: str) -> pathlib.Path:
+    def deserialize_paths(cls, value: str) -> pathlib.Path:  # noqa: D102
         return deserialize_str_to_path(value)
-    
+
     @property
     def train_data_path(self) -> str:  # noqa: D102
         return self.data_dir + "/train"

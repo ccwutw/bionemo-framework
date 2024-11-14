@@ -18,7 +18,6 @@ from functools import partial
 from typing import List, Optional
 
 import yaml
-
 from nemo.utils import logging
 
 from bionemo.core.utils.dtypes import PrecisionTypes
@@ -594,7 +593,7 @@ def main():  # noqa: D103
     else:
         raise ValueError("Invalid recipe choice.")
 
-    # Serialize to YAML 
+    # Serialize to YAML
     yaml_str = yaml.dump(config.model_dump(), indent=2)
 
     # Save to file

@@ -15,7 +15,6 @@
 
 
 import argparse
-import json
 from typing import Optional
 
 import yaml
