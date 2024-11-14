@@ -44,7 +44,16 @@ for key in CUSTOM_ACTIVATION_FNS:
 REVERSE_CUSTOM_ACTIVATION_FNS: Dict[Callable[[torch.Tensor, Any], torch.Tensor], str] = {
     v: k for k, v in CUSTOM_ACTIVATION_FNS.items()
 }
+def deserialize_str_to_path(path: str) -> pathlib.Path:
+    return pathlib.Path(path)
 
+def serialize_path_or_str(path: str | pathlib.Path) -> str:
+    if isinstance(path, pathlib.Path):
+        return str(path)
+    elif isinstance(path, str):
+        return path
+    else:
+        raise ValueError(f"Expected str or pathlib.Path, got {type(path)}")
 
 class DataConfig(BaseModel, Generic[DataModuleT], ABC):
     """Base class for all data configurations.
@@ -57,6 +66,14 @@ class DataConfig(BaseModel, Generic[DataModuleT], ABC):
     result_dir: str | pathlib.Path = "./results"
     num_dataset_workers: int = 0
     seq_length: int = 128
+
+    @field_serializer("result_dir")
+    def serialize_paths(self, value: pathlib.Path) -> str:
+        return serialize_path_or_str(value)
+
+    @field_validator("result_dir")
+    def deserialize_paths(cls, value: str) -> pathlib.Path:
+        return deserialize_str_to_path(value)
 
     @abstractmethod
     def construct_data_module(self, global_batch_size: int) -> DataModuleT:
@@ -157,6 +174,14 @@ class ExposedModelConfig(BaseModel, Generic[ModelConfigT], ABC):
     enable_autocast: bool = False
     nemo1_ckpt_path: Optional[str] = None
     biobert_spec_option: BiobertSpecOption = BiobertSpecOption.bert_layer_with_transformer_engine_spec
+
+    @field_serializer("biobert_spec_option")
+    def serialize_spec_option(self, value: BiobertSpecOption) -> str:
+        return value.value
+
+    @field_validator("biobert_spec_option", mode="before")
+    def deserialize_spec_option(cls, value: str) -> BiobertSpecOption:
+        return BiobertSpecOption(value)
 
     @field_validator("activation_func", mode="before")
     @classmethod
@@ -330,6 +355,13 @@ class ExperimentConfig(BaseModel):
     save_top_k: int = 2
     create_tensorboard_logger: bool = False
 
+    @field_serializer("result_dir")
+    def serialize_paths(self, value: pathlib.Path) -> str:
+        return serialize_path_or_str(value)
+
+    @field_validator("result_dir")
+    def deserialize_paths(cls, value: str) -> pathlib.Path:
+        return deserialize_str_to_path(value)
 
 # DataConfig -> some config that can make a data module (see ABC definition.)
 DataConfigT = TypeVar("DataConfigT", bound=DataConfig)
