@@ -205,7 +205,6 @@ RUN --mount=type=bind,source=./.git,target=./.git \
   --mount=type=bind,source=./requirements-test.txt,target=/requirements-test.txt \
   --mount=type=bind,source=./requirements-cve.txt,target=/requirements-cve.txt \
   <<EOF
-set -eo pipefail
 
 /workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh
 
