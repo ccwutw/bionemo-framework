@@ -112,6 +112,7 @@ ENV CUDA_HOME=/usr/local/cuda
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_REQUIRE_CUDA=cuda>=9.0
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+ENV CUDA_ARCH_LIST="75-real;80-real;86-real;89-real;90-real"
 #ENV LD_LIBRARY_PATH="/usr/local/lib/python3.10/dist-packages/torch/lib:/usr/local/lib/python3.10/dist-packages/torch_tensorrt/lib:/usr/local/cuda/compat/lib:/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
 
 WORKDIR /build/
@@ -127,6 +128,10 @@ ENV CUDA_HOME=/usr/local/cuda
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_REQUIRE_CUDA=cuda>=9.0
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,video
+ENV CUDA_ARCH_LIST="75-real;80-real;86-real;89-real;90-real"
+# NOTE:
+# look at: https://github.com/pytorch/pytorch/blob/main/Dockerfile
+# look at: https://github.com/huggingface/text-generation-inference/blob/main/Dockerfile
 
 # See NeMo readme for the latest tested versions of these libraries
 RUN git clone https://github.com/NVIDIA/apex.git && \
