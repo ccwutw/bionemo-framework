@@ -207,6 +207,7 @@ RUN pip install ./3rdparty/NeMo
 
 COPY ./requirements-test.txt ./requirements-cve.txt /workspace/bionemo2/
 COPY ./ci/docker/clobber_dependencies_into_requirements_txt.sh /workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh
+COPY ./docs/
 COPY ./sub-packages /workspace/bionemo2/sub-packages
 
 # NOTE: we don't need any pytorch-geometric stuff right now
@@ -219,6 +220,7 @@ RUN rm -r sub-packages/bionemo-geometric
 #  --mount=type=bind,source=./requirements-test.txt,target=/requirements-test.txt \
 #  --mount=type=bind,source=./requirements-cve.txt,target=/requirements-cve.txt \
 RUN /workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh && \
+    pip freeze | grep torch\=\= >> all_requirements.txt && \
     pip install -r all_requirements.txt -r requirements-test.txt && \
     pip install --no-deps -e ./sub-packages/bionemo-*
     #    pip install -r all_requirements.txt -r /requirements-cve.txt -r /requirements-test.txt
