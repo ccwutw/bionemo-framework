@@ -208,8 +208,11 @@ RUN --mount=type=bind,source=./.git,target=./.git \
 
 /workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh
 
-pip install --no-build-isolation -e \
-  ./3rdparty/* \
+pip install ./3rdparty/Megatron-LM || true
+
+pip install ./3rdparty/NeMo || true
+
+pip install \
   -r all_requirements.txt \
   -r /requirements-cve.txt \
   -r /requirements-test.txt
