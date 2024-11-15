@@ -207,7 +207,8 @@ RUN pip install ./3rdparty/NeMo
 
 COPY ./requirements-test.txt ./requirements-cve.txt /workspace/bionemo2/
 COPY ./ci/docker/clobber_dependencies_into_requirements_txt.sh /workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh
-COPY ./docs/
+COPY ./docs /workspace/bionemo2/docs
+COPY ./scripts /workspace/bionemo2/scripts
 COPY ./sub-packages /workspace/bionemo2/sub-packages
 
 # NOTE: we don't need any pytorch-geometric stuff right now
