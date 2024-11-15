@@ -79,6 +79,9 @@ RUN apt update -y && apt upgrade -y && DEBIAN_FRONTEND=noninteractive apt-get in
     libibverbs-dev \
     librdmacm-dev \
     libhwloc-dev \
+    lzma \
+    liblzma-dev \
+    libbz2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build/python
