@@ -449,6 +449,8 @@ class MegatronBioBertModel(LanguageModule):
         output = {"token_logits": logits, "binary_logits": binary_logits}
         if self.include_hiddens:
             output["hidden_states"] = hidden_states.transpose(0, 1).contiguous()  # [s b h] => [b s h]
+        if self.include_hiddens or not self.skip_logits:
+            output["attention_mask"] = attention_mask  # b, s, h with 1s for Seq including BOS/EOS
         if self.include_embeddings:
             output["embeddings"] = output_embeddings
         return output
