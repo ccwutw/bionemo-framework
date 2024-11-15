@@ -192,25 +192,38 @@ RUN pip install hatchling nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 FROM dl_deps_base AS bionemo_base
 
+WORKDIR /build/yq
+RUN <<EOF
+curl -LO https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64.tar.gz
+tar -zxf yq_linux_amd64.tar.gz
+chmod +x yq_linux_amd64
+ln -s $(pwd)/yq_linux_amd64 /usr/local/bin/yq
+EOF
+
 WORKDIR /workspace/bionemo2
-
-COPY ./ci/docker/clobber_dependencies_into_requirements_txt.sh /workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh
-
-# Install 3rd-party deps and bionemo submodules.
 COPY ./3rdparty /workspace/bionemo2/3rdparty
+RUN pip install ./3rdparty/Megatron-LM
+RUN pip install ./3rdparty/NeMo
+
+COPY ./requirements-test.txt ./requirements-cve.txt /workspace/bionemo2/
+COPY ./ci/docker/clobber_dependencies_into_requirements_txt.sh /workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh
 COPY ./sub-packages /workspace/bionemo2/sub-packages
 
-# Note, we need to mount the .git folder here so that setuptools-scm is able to fetch git tag for version.
-RUN --mount=type=bind,source=./.git,target=./.git \
-  --mount=type=bind,source=./requirements-test.txt,target=/requirements-test.txt \
-  --mount=type=bind,source=./requirements-cve.txt,target=/requirements-cve.txt \
-  <<EOF
+# NOTE: we don't need any pytorch-geometric stuff right now
+#       including it messes up our pinned torch dependency
+#       so we **DO NOT INCLUDE** the bionemo-geometric sub-package !!!
+# TODO: add this back and fix the pinning issue ! (will need to relax version constraints in geometric deps, most likely...)
+RUN rm -r sub-packages/bionemo-geometric
 
+#RUN --mount=type=bind,source=./.git,target=./.git \
+#  --mount=type=bind,source=./requirements-test.txt,target=/requirements-test.txt \
+#  --mount=type=bind,source=./requirements-cve.txt,target=/requirements-cve.txt \
+RUN <<EOF
+
+# create all_requirements.txt
 /workspace/bionemo2/ci/docker/clobber_dependencies_into_requirements_txt.sh
 
-pip install ./3rdparty/Megatron-LM || true
 
-pip install ./3rdparty/NeMo || true
 
 pip install \
   -r all_requirements.txt \
