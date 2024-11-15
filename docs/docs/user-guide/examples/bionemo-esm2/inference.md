@@ -6,7 +6,7 @@ This tutorial serves as a demo for [ESM2](https://www.science.org/doi/abs/10.112
 
 In this tutorial, we will demonstrate how to download ESM2 checkpoint, create a CSV file with protein sequences, and infer a ESM-2 model.
 
-All commands should be executed inside the BioNeMo docker container, which has all ESM-2 dependencies pre-installed. This tutorial assumes that a copy of the BioNeMo framework repo exists on workstation or server and has been mounted inside the container at `/workspace/bionemo2`.  For more information on how to build or pull the BioNeMo2 container, refer to the [Initialization Guide](../../getting-started/initialization-guide.md).
+All commands should be executed inside the BioNeMo docker container, which has all ESM-2 dependencies pre-installed. This tutorial assumes that a copy of the BioNeMo framework repo exists on workstation or server and has been mounted inside the container at `/workspace/bionemo2`. For more information on how to build or pull the BioNeMo2 container, refer to the [Initialization Guide](../../getting-started/initialization-guide.md).
 
 !!! note
 
@@ -57,10 +57,6 @@ download_bionemo_data esm2/testdata_esm2_inference:2.0 --source ngc
 To run inference on this data using an ESM2 checkpoint you can use the `infer_esm2` executable which calls `$WORKDIR/sub-packages/bionemo-esm2/src/bionemo/esm2/scripts/infer_esm2.py`:
 
 ```bash
-# Enable fused attention in transformer engine for speed-up
-export NVTE_FUSED_ATTN=1
-export NVTE_FLASH_ATTN=0
-
 DATA_PATH=$(download_bionemo_data esm2/testdata_esm2_inference:2.0 --source ngc)
 CHECKPOINT_PATH=$(download_bionemo_data esm2/650m:2.0 --source ngc)
 
