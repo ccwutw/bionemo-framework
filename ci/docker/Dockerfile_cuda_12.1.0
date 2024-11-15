@@ -180,7 +180,7 @@ RUN git clone https://github.com/NVIDIA/TransformerEngine.git && \
   cd TransformerEngine && \
   git checkout ${TE_COMMIT} && \
   git submodule init && git submodule update && \
-  git am < /build/0001-Fix-to-support-CUDA-12.1.patch && \
+  GIT_COMITTER_NAME='patcher' EMAIL='invalid@invalid' git am < /build/0001-Fix-to-support-CUDA-12.1.patch && \
   NVTE_FRAMEWORK=pytorch NVTE_WITH_USERBUFFERS=1 MPI_HOME=/usr/local/lib/openmpi pip install .
 
 # Check the nemo dependency for causal conv1d and make sure this checkout
