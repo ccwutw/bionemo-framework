@@ -144,11 +144,13 @@ def test_infer_runs(tmpdir, dummy_protein_csv, dummy_protein_sequences):
 
     results = torch.load(results_path)
     assert isinstance(results, dict)
-    keys_included = ["token_logits", "hidden_states", "embeddings", "binary_logits"]
+    keys_included = ["token_logits", "hidden_states", "embeddings", "binary_logits", "input_ids"]
     assert all(key in results for key in keys_included)
     assert results["binary_logits"] is None
     assert results["embeddings"].shape[0] == len(dummy_protein_sequences)
     # hidden_states are [batch, sequence, hidden_dim]
     assert results["hidden_states"].shape[:-1] == (len(dummy_protein_sequences), max_dataset_seq_len)
+    # input_ids are [batch, sequence]
+    assert results["input_ids"].shape == (len(dummy_protein_sequences), max_dataset_seq_len)
     # token_logits are [sequence, batch, num_tokens]
     assert results["token_logits"].shape[:-1] == (max_dataset_seq_len, len(dummy_protein_sequences))
