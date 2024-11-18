@@ -158,7 +158,7 @@ TWINE_PASSWORD="<pypi pass>" TWINE_USERNAME="<pypi user>" uvx twine upload /sub-
 ## Pydantic Configuration
 
 BioNeMo 2 provides two entrypoints for models with both argparse and pydantic. Both documented in the `Models` section below.
-Pydantic based configuration is designed to accept a configuration json file as input, along with context specific arguments (e.g., should we resume from existing checkpoints?). These YAML configs go through a Pydantic Validator, in this case referred to as `MainConfig`. This Config is composed of several other Pydantic models, see the class definition for details. To pre-populate a config with reasonable defaults for various standard models, we provide 'recipes.' These are simple methods that instantiate the config object and then serialize it to a YAML configuration file. From this file, you may either submit it directly, or modify the various parameters to meet your usecase. For example, Weights and biases, devices, precision, and dataset options are all extremely useful to modify. Then, you would submit this config for training.
+Pydantic based configuration is designed to accept a configuration yaml file as input, along with context specific arguments (e.g., should we resume from existing checkpoints?). These YAML configs go through a Pydantic Validator, in this case referred to as `MainConfig`. This Config is composed of several other Pydantic models, see the class definition for details. To pre-populate a config with reasonable defaults for various standard models, we provide 'recipes.' These are simple methods that instantiate the config object and then serialize it to a YAML configuration file. From this file, you may either submit it directly, or modify the various parameters to meet your usecase. For example, Weights and biases, devices, precision, and dataset options are all extremely useful to modify. Then, you would submit this config for training.
 
 These two workflows are packaged as executables when esm2 or geneformer are installed with pip. These commands will appear as:
 
@@ -209,8 +209,9 @@ train_esm2     \
 
 ##### Running with Pydantic configs
 
-Alternatively, we provide a validated and serialized configuration file entrypoint for executing the same workflow. Recipes
+Alternatively, we provide a validated and serialized configuration file entrypoint for executing the same workflow. These can be generated using the `bionemo-esm2-recipe` entrypoints. Recipes
 are available for 8m, 650m, and 3b ESM2 models. You may select which preset config to use by setting the `--recipe` parameter.
+The output is then a serialized configuration file that may be used in the associated `bionemo-esm2-train` commands.
 
 ```bash
 # The fastest transformer engine environment variables in testing were the following two
@@ -221,15 +222,15 @@ bionemo-esm2-recipe \
 --valid-cluster-path ${TEST_DATA_DIR}/2024_03_sanity/valid_clusters.parquet     \
 --valid-database-path ${TEST_DATA_DIR}/2024_03_sanity/validation.db     \
 --result-dir ./results     \
---dest my_config.json \
+--dest my_config.yaml\
 --recipe 8m
 ```
 
-> ⚠️ **IMPORTANT:** Inspect and edit the contents of the outputted my_config.json as you see fit
+> ⚠️ **IMPORTANT:** Inspect and edit the contents of the outputted my_config.yaml as you see fit
 
-> NOTE: To pretrain from an existing checkpoint, simply pass in the path --initial-ckpt-path to the recipe command. This will populate the YAML with the correct field to ensure pretraining is initialized from an existing checkpoint.
+> NOTE: To continue training from an existing checkpoint, simply pass in the path --initial-ckpt-path to the recipe command. This will populate the YAML with the correct field to ensure pretraining is initialized from an existing checkpoint.
 
-To submit a training job with the passed config, first update the json file with any additional execution parameters
+To submit a training job with the passed config, first update the yaml file with any additional execution parameters
 of your choosing: number of devices, workers, steps, etc. Second, invoke our training entrypoint. To do this, we need
 three things:
 
@@ -248,7 +249,7 @@ and DataModule types.
 bionemo-esm2-train \
 --data-config-t bionemo.esm2.run.config_models.ESM2DataConfig \
 --model-config-t bionemo.esm2.run.config_models.ExposedESM2PretrainConfig \
---config my_config.json
+--config my_config.yaml
 ```
 
 > NOTE: both data-config-t and model-config-t have default values corresponding to ESM2DataConfig and ExposedESM2PretrainingConfig
@@ -329,7 +330,7 @@ bionemo-geneformer-recipe \
 
 > NOTE: To pretrain from an existing checkpoint, simply pass in the path --initial-ckpt-path to the recipe command. This will populate the YAML with the correct field to ensure pretraining is initialized from an existing checkpoint.
 
-To submit a training job with the passed config, first update the json file with any additional execution parameters
+To submit a training job with the passed config, first update the yaml file with any additional execution parameters
 of your choosing: number of devices, workers, steps, etc. Second, invoke our training entrypoint. To do this, we need
 three things:
 
@@ -347,7 +348,7 @@ the default pretraining DataConfig and DataModule will be insufficient. See ESM2
 bionemo-geneformer-train \
 --data-config-t bionemo.geneformer.run.config_models.GeneformerPretrainingDataConfig \
 --model-config-t bionemo.geneformer.run.config_models.ExposedGeneformerPretrainConfig \
---config my_config.json
+--config my_config.yaml
 ```
 
 > NOTE: both data-config-t and model-config-t have default values corresponding to GeneformerPretrainingDataConfig and ExposedGeneformerPretrainConfig
