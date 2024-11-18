@@ -51,13 +51,13 @@ df.to_csv(csv_file, index=False)
 For the purpose of this tutorial, we have already provided an example `.csv` file as a downloadable resource in Bionemo Framework:
 
 ```bash
-download_bionemo_data esm2/testdata_esm2_inference:2.0 --source ngc
+download_bionemo_data esm2/esm2_inference_testdatac:2.0 --source ngc
 ```
 
 To run inference on this data using an ESM2 checkpoint you can use the `infer_esm2` executable which calls `$WORKDIR/sub-packages/bionemo-esm2/src/bionemo/esm2/scripts/infer_esm2.py`:
 
 ```bash
-DATA_PATH=$(download_bionemo_data esm2/testdata_esm2_inference:2.0 --source ngc)
+DATA_PATH=$(download_bionemo_data esm2/esm2_inference_testdata:2.0 --source ngc)
 CHECKPOINT_PATH=$(download_bionemo_data esm2/650m:2.0 --source ngc)
 
 infer_esm2

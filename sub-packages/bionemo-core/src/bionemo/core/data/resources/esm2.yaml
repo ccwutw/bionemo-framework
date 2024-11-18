@@ -41,7 +41,7 @@
   owner: Peter St John <pstjohn@nvidia.com>
   description: Test data for ESM2 pretraining.
 
-- tag: testdata_esm2_infer:2.0
+- tag: esm2_inference_testdata:2.0
   ngc: nvidia/clara/esm2_inference_testdata:2.0  # TODO: upload to NGC
   ngc_registry: resource
   pbss: "s3://bionemo-ci/test_data/esm2/artificial_protein_sequences.csv"
