@@ -145,7 +145,7 @@ def test_finetune_cli(tmpdir):
     if result.returncode != 0:
         raise Exception(f"Pretrain recipe failed:\n{cmd_str=}\n{result.stdout=}\n{result.stderr=}")
 
-    cmd_str = f"bionemo-geneformer-train --conf {config} --model-config-t ExposedFineTuneSeqLenBioBertConfig"
+    cmd_str = f"bionemo-geneformer-train --conf {config} --model-config-cls ExposedFineTuneSeqLenBioBertConfig"
     env = dict(**os.environ)  # a local copy of the environment
     open_port = find_free_network_port()
     env["MASTER_PORT"] = str(open_port)

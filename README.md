@@ -247,14 +247,14 @@ and DataModule types.
 
 ```
 bionemo-esm2-train \
---data-config-t bionemo.esm2.run.config_models.ESM2DataConfig \
---model-config-t bionemo.esm2.run.config_models.ExposedESM2PretrainConfig \
+--data-config-cls bionemo.esm2.run.config_models.ESM2DataConfig \
+--model-config-cls bionemo.esm2.run.config_models.ExposedESM2PretrainConfig \
 --config my_config.yaml
 ```
 
-> NOTE: both data-config-t and model-config-t have default values corresponding to ESM2DataConfig and ExposedESM2PretrainingConfig
+> NOTE: both data-config-cls and model-config-cls have default values corresponding to ESM2DataConfig and ExposedESM2PretrainingConfig
 
-DataConfigT and ModelConfigT can also refer to locally defined types by the user. As long as python knows how to import
+DataConfigCls and ModelConfigCls can also refer to locally defined types by the user. As long as python knows how to import
 the specified path, they may be configured. For example, you may have a custom Dataset/DataModule that you would like to
 mix with an existing recipe. In this case, you define a DataConfig object with the generic specified as your DataModule
 type, and then pass in the config type to the training recipe.
@@ -346,14 +346,14 @@ the default pretraining DataConfig and DataModule will be insufficient. See ESM2
 
 ```bash
 bionemo-geneformer-train \
---data-config-t bionemo.geneformer.run.config_models.GeneformerPretrainingDataConfig \
---model-config-t bionemo.geneformer.run.config_models.ExposedGeneformerPretrainConfig \
+--data-config-cls bionemo.geneformer.run.config_models.GeneformerPretrainingDataConfig \
+--model-config-cls bionemo.geneformer.run.config_models.ExposedGeneformerPretrainConfig \
 --config my_config.yaml
 ```
 
-> NOTE: both data-config-t and model-config-t have default values corresponding to GeneformerPretrainingDataConfig and ExposedGeneformerPretrainConfig
+> NOTE: both data-config-cls and model-config-cls have default values corresponding to GeneformerPretrainingDataConfig and ExposedGeneformerPretrainConfig
 
-DataConfigT and ModelConfigT can also refer to locally defined types by the user. As long as python knows how to import
+DataConfigCls and ModelConfigCls can also refer to locally defined types by the user. As long as python knows how to import
 the specified path, they may be configured. For example, you may have a custom Dataset/DataModule that you would like to
 mix with an existing recipe. In this case, you define a DataConfig object with the generic specified as your DataModule
 type, and then pass in the config type to the training recipe.
