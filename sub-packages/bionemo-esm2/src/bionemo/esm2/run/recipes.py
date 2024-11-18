@@ -430,15 +430,13 @@ def main():  # noqa: D103
     else:
         raise ValueError(f"Invalid recipe choice. {args.recipe=}")
 
-    # Serialize to YAML
-    yaml_str = yaml.dump(config.model_dump(), indent=2)
-
     # Save to file
     with open(
         args.dest,
         "w",
     ) as f:
-        f.write(yaml_str)
+        yaml.dump(config.model_dump(), f, indent=2)
+
     logging.info(f"Saved configuration to {args.dest=}")
 
 
