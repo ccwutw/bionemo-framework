@@ -13,7 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import functools
 import itertools
+import operator
 from warnings import warn
 
 import pytest
@@ -486,8 +488,6 @@ def test_iter_bucket_batch_sampler(sample_data):
 
 
 def test_iter_bucket_batch_sampler_with_shuffle(sample_data):
-    torch.set_default_device("cuda")
-
     (
         sizes,
         bucket_boundaries,
@@ -496,41 +496,22 @@ def test_iter_bucket_batch_sampler_with_shuffle(sample_data):
         base_batch_sampler_individual_kwargs,
     ) = sample_data
     batch_sampler = BucketBatchSampler(
-        sizes=sizes.cuda(),
-        bucket_boundaries=bucket_boundaries.cuda(),
+        sizes=sizes,
+        bucket_boundaries=bucket_boundaries,
         base_batch_sampler_class=base_batch_sampler_class,
         base_batch_sampler_shared_kwargs=base_batch_sampler_shared_kwargs,
         base_batch_sampler_individual_kwargs=base_batch_sampler_individual_kwargs,
         shuffle=True,
-        generator=torch.Generator(device="cuda").manual_seed(0),
+        generator=torch.Generator(),
     )
+
     batch_lists_first_iter = list(iter(batch_sampler))
-    ref_batch_lists_first_iter = [
-        [23, 24, 16, 21, 15],
-        [17, 20, 18, 22, 19],
-        [9, 13, 7],
-        [11, 6, 10],
-        [4, 5],
-        [2, 3],
-        [12, 8, 14],
-        [0, 1],
-    ]
-    assert batch_lists_first_iter == ref_batch_lists_first_iter
+    assert set(functools.reduce(operator.iadd, batch_lists_first_iter, [])) == set(range(25))
+    sample_bucket_indices = [0] * 6 + [1] * 9 + [2] * 10
+    assert all(len({sample_bucket_indices[k] for k in batch}) == 1 for batch in batch_lists_first_iter)
 
     batch_lists_second_iter = list(iter(batch_sampler))
-    ref_batch_lists_second_iter = [
-        [15, 20, 16, 23, 17],
-        [2, 0],
-        [7, 10, 9],
-        [1, 5],
-        [6, 13, 11],
-        [19, 24, 21, 18, 22],
-        [12, 8, 14],
-        [4, 3],
-    ]
-
-    assert batch_lists_second_iter == ref_batch_lists_second_iter
-    assert batch_lists_first_iter != ref_batch_lists_second_iter
+    assert batch_lists_first_iter != batch_lists_second_iter
 
 
 def test_bucket_batch_sampler_with_size_aware_batch_sampler(sample_data):
@@ -566,59 +547,24 @@ def test_bucket_batch_sampler_with_size_aware_batch_sampler(sample_data):
     batch_lists_second_iter = list(iter(batch_sampler))
     assert batch_lists_second_iter == ref_batch_lists
 
-
-def test_bucket_batch_sampler_with_size_aware_batch_sampler_and_shuffle(sample_data):
-    # torch.multinomial does not give consistent results on x86 and arm CPUs, switch to test on GPU
-    torch.set_default_device("cuda")
-
-    sizes, bucket_boundaries, _, _, _ = sample_data
-    item_costs = sizes.tolist()
-
-    def cost_of_element(index):
-        return item_costs[index]
-
+    # with shuffle
     batch_sampler = BucketBatchSampler(
-        sizes=sizes.cuda(),
-        bucket_boundaries=bucket_boundaries.cuda(),
+        sizes=sizes,
+        bucket_boundaries=bucket_boundaries,
         base_batch_sampler_class=SizeAwareBatchSampler,
         base_batch_sampler_shared_kwargs={"sizeof": cost_of_element},
         base_batch_sampler_individual_kwargs={"max_total_size": [10, 30, 50]},
         shuffle=True,
-        generator=torch.Generator(device="cuda").manual_seed(0),
+        generator=torch.Generator(),
     )
     batch_lists_first_iter = list(iter(batch_sampler))
-    ref_batch_lists_first_iter = [
-        [23, 24],
-        [16, 21],
-        [9, 13, 7],
-        [11, 6, 10],
-        [4, 5],
-        [15, 17],
-        [20, 18],
-        [12, 8],
-        [22, 19],
-        [14],
-        [2, 3, 0, 1],
-    ]
-    assert batch_lists_first_iter == ref_batch_lists_first_iter
+    assert set(functools.reduce(operator.iadd, batch_lists_first_iter, [])) == set(range(25))
+    sample_bucket_indices = [0] * 6 + [1] * 9 + [2] * 10
+    assert all(len({sample_bucket_indices[k] for k in batch}) == 1 for batch in batch_lists_first_iter)
 
     batch_lists_second_iter = list(iter(batch_sampler))
-    ref_batch_lists_second_iter = [
-        [2, 1, 4, 0],
-        [9, 12],
-        [17, 15],
-        [10, 6, 14],
-        [22, 18],
-        [16, 20],
-        [19, 21],
-        [11, 8],
-        [24, 23],
-        [13, 7],
-        [5, 3],
-    ]
 
-    assert batch_lists_second_iter == ref_batch_lists_second_iter
-    assert batch_lists_first_iter != ref_batch_lists_second_iter
+    assert batch_lists_first_iter != batch_lists_second_iter
 
 
 def test_iter_bucket_batch_sampler_with_empty_buckets(sample_data):
