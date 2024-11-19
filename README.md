@@ -223,7 +223,7 @@ bionemo-esm2-recipe \
 --valid-database-path ${TEST_DATA_DIR}/2024_03_sanity/validation.db     \
 --result-dir ./results     \
 --dest my_config.yaml\
---recipe 8m
+--recipe esm2_8m_recipe
 ```
 
 > ⚠️ **IMPORTANT:** Inspect and edit the contents of the outputted my_config.yaml as you see fit
@@ -321,7 +321,7 @@ customizations for your task.
 ```bash
 TEST_DATA_DIR=$(download_bionemo_data single_cell/testdata-20240506 --source $MY_DATA_SOURCE); \
 bionemo-geneformer-recipe \
-    --recipe 10m-pretrain \
+    --recipe geneformer_10m_pretrain_recipe \
     --dest my_config.yaml \
     --data-path ${TEST_DATA_DIR}/cellxgene_2023-12-15_small/processed_data \
     --result-dir ./results
