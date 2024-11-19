@@ -59,7 +59,7 @@ def test_pretrain_pydantic_cli(dummy_protein_dataset, dummy_parquet_train_val_in
     config = f"{result_dir}/test_config.yaml"
 
     # Invoke with blocking
-    cmd_str = f"""bionemo-esm2-recipe --dest {config} --recipe test
+    cmd_str = f"""bionemo-esm2-recipe --dest {config} --recipe esm2_tiny_test_recipe
       --train-database-path {dummy_protein_dataset}
       --train-cluster-path {train_cluster_path}
       --valid-database-path {dummy_protein_dataset}

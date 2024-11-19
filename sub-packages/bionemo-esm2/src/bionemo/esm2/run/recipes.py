@@ -15,11 +15,13 @@
 
 
 import argparse
+from functools import partial
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import yaml
 from nemo.utils import logging
+from pydantic import BaseModel
 
 from bionemo.core.utils.dtypes import PrecisionTypes
 from bionemo.esm2.run.config_models import ESM2DataConfig, ExposedESM2PretrainConfig
@@ -369,13 +371,35 @@ def esm2_tiny_test_recipe(args):
     return main_config
 
 
+class ESM2Recipes(BaseModel):
+    """Pre-baked recipes for Geneformer.
+
+    THIS PYDANTIC MODEL IS NOT MEANT FOR SERIALIZATION. Only used to facilitate argparse. Each recipe should take `args`
+    as the only argument. We use partials so we can provide this information at runtime. Add new recipes to this model.
+    """
+
+    # Use partials so we can still parameterize the recipes from the CLI (e.g. data paths.)
+    esm2_tiny_test_recipe: Callable[[argparse.Namespace], MainConfig[ExposedESM2PretrainConfig, ESM2DataConfig]] = (
+        partial(esm2_tiny_test_recipe)
+    )
+    esm2_8m_recipe: Callable[[argparse.Namespace], MainConfig[ExposedESM2PretrainConfig, ESM2DataConfig]] = partial(
+        esm2_8m_recipe
+    )
+    esm2_650m_recipe: Callable[[argparse.Namespace], MainConfig[ExposedESM2PretrainConfig, ESM2DataConfig]] = partial(
+        esm2_650m_recipe
+    )
+    esm2_3b_recipe: Callable[[argparse.Namespace], MainConfig[ExposedESM2PretrainConfig, ESM2DataConfig]] = partial(
+        esm2_3b_recipe
+    )
+
+
 def main():  # noqa: D103
     def parse_args():
         parser = argparse.ArgumentParser(description="Create ESM2 configuration YAML.")
         parser.add_argument(
             "--recipe",
             type=str,
-            choices=["test", "8m", "650m", "3b"],
+            choices=ESM2Recipes.model_fields.keys(),
             required=True,
             help="Use one of the preconfigured recipes to create a template config file.",
         )
@@ -417,18 +441,8 @@ def main():  # noqa: D103
 
     # Simple example for creating a YAML from recipes.
     args = parse_args()
-
-    if args.recipe == "8m":
-        config = esm2_8m_recipe(args)
-    elif args.recipe == "650m":
-        config = esm2_650m_recipe(args)
-    elif args.recipe == "3b":
-        config = esm2_3b_recipe(args)
-    elif args.recipe == "test":
-        # Hardcoded test recipe.
-        config = esm2_tiny_test_recipe(args)
-    else:
-        raise ValueError(f"Invalid recipe choice. {args.recipe=}")
+    config_partial: Callable[[argparse.Namespace], MainConfig] = ESM2Recipes().__getattribute__(args.recipe)
+    config = config_partial(args)
 
     # Save to file
     with open(

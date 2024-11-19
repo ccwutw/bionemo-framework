@@ -15,10 +15,11 @@
 
 import argparse
 from functools import partial
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import yaml
 from nemo.utils import logging
+from pydantic import BaseModel
 
 from bionemo.core.utils.dtypes import PrecisionTypes
 from bionemo.geneformer.run.config_models import (
@@ -538,13 +539,38 @@ def geneformer_10m_finetune_recipe(
     return main_config
 
 
+class GeneformerRecipes(BaseModel):
+    """Pre-baked recipes for Geneformer.
+
+    THIS PYDANTIC MODEL IS NOT MEANT FOR SERIALIZATION. Only used to facilitate argparse. Each recipe should take `args`
+    as the only argument. We use partials so we can provide this information at runtime. Add new recipes to this model.
+    """
+
+    # Use partials so we can still parameterize the recipes from the CLI (e.g. data paths.)
+    geneformer_10m_finetune_recipe: Callable[
+        [argparse.Namespace], MainConfig[ExposedFineTuneSeqLenBioBertConfig, GeneformerPretrainingDataConfig]
+    ] = partial(geneformer_10m_finetune_recipe)
+    geneformer_10m_pretrain_recipe: Callable[
+        [argparse.Namespace], MainConfig[ExposedGeneformerPretrainConfig, GeneformerPretrainingDataConfig]
+    ] = partial(geneformer_10m_pretrain_recipe)
+    geneformer_106m_pretrain_recipe: Callable[
+        [argparse.Namespace], MainConfig[ExposedGeneformerPretrainConfig, GeneformerPretrainingDataConfig]
+    ] = partial(geneformer_106m_pretrain_recipe)
+    geneformer_tiny_test_recipe: Callable[
+        [argparse.Namespace], MainConfig[ExposedGeneformerPretrainConfig, GeneformerPretrainingDataConfig]
+    ] = partial(pretrain_tiny_test_recipe)
+    finetune_test_recipe: Callable[
+        [argparse.Namespace], MainConfig[ExposedFineTuneSeqLenBioBertConfig, GeneformerPretrainingDataConfig]
+    ] = partial(finetune_test_recipe)
+
+
 def main():  # noqa: D103
     def parse_args():
         parser = argparse.ArgumentParser(description="Create Geneformer configuration YAML.")
         parser.add_argument(
             "--recipe",
             type=str,
-            choices=["test", "10m-pretrain", "106m-pretrain", "test-finetune", "finetune"],
+            choices=GeneformerRecipes.model_fields.keys(),
             required=True,
             help="Use one of the preconfigured recipes to create a template config file.",
         )
@@ -577,21 +603,8 @@ def main():  # noqa: D103
 
     """Simple example for creating a YAML from recipes."""
     args = parse_args()
-
-    if args.recipe == "test":
-        config = pretrain_tiny_test_recipe(args)
-    elif args.recipe == "10m-pretrain":
-        config = geneformer_10m_pretrain_recipe(args)
-    elif args.recipe == "106m-pretrain":
-        config = geneformer_106m_pretrain_recipe(args)
-    elif args.recipe == "test-finetune":
-        # Uses a bigger model because we have a pretrained model for it.
-        config = finetune_test_recipe(args)
-    elif args.recipe == "finetune":
-        # NOTE: this recipe finetunes a regression model on the masked tokens, if youre looking to finetune with a custom task, youll need to define your own classes.
-        config = geneformer_10m_finetune_recipe(args)
-    else:
-        raise ValueError("Invalid recipe choice.")
+    config_partial: Callable[[argparse.Namespace], MainConfig] = GeneformerRecipes().__getattribute__(args.recipe)
+    config = config_partial(args)
 
     # Save to file
     with open(

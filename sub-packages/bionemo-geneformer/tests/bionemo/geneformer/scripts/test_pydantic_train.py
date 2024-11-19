@@ -45,7 +45,7 @@ def test_pretrain_cli_from_ckpt(tmpdir):
     config = f"{result_dir}/test_config.yaml"
     # Invoke with blocking, continue when finished (and the yaml config is generated)
     checkpoint_path: Path = load("geneformer/10M_240530:2.0")
-    cmd_str = f"""bionemo-geneformer-recipe --dest {config} --recipe test --data-path {data_path} --result-dir {result_dir} --initial-ckpt-path {checkpoint_path}""".strip()
+    cmd_str = f"""bionemo-geneformer-recipe --dest {config} --recipe geneformer_tiny_test_recipe --data-path {data_path} --result-dir {result_dir} --initial-ckpt-path {checkpoint_path}""".strip()
     env = dict(**os.environ)  # a local copy of the environment
     env["MASTER_PORT"] = str(open_port)
     cmd = shlex.split(cmd_str)
@@ -85,7 +85,7 @@ def test_pretrain_cli(tmpdir):
     open_port = find_free_network_port()
     config = f"{result_dir}/test_config.yaml"
     # Invoke with blocking
-    cmd_str = f"""bionemo-geneformer-recipe --dest {config} --recipe test --data-path {data_path} --result-dir {result_dir}""".strip()
+    cmd_str = f"""bionemo-geneformer-recipe --dest {config} --recipe geneformer_tiny_test_recipe --data-path {data_path} --result-dir {result_dir}""".strip()
     # continue when finished
     env = dict(**os.environ)  # a local copy of the environment
     env["MASTER_PORT"] = str(open_port)
@@ -128,7 +128,7 @@ def test_finetune_cli(tmpdir):
     config = f"{result_dir}/test_config.yaml"
 
     # TODO add initial path
-    cmd_str = f"""bionemo-geneformer-recipe --dest {config} --recipe test-finetune --data-path {data_path} --result-dir {result_dir} --initial-ckpt-path {checkpoint_path}""".strip()
+    cmd_str = f"""bionemo-geneformer-recipe --dest {config} --recipe finetune_test_recipe --data-path {data_path} --result-dir {result_dir} --initial-ckpt-path {checkpoint_path}""".strip()
     # continue when finished
     env = dict(**os.environ)  # a local copy of the environment
     env["MASTER_PORT"] = str(open_port)
