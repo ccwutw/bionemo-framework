@@ -11,7 +11,9 @@ path = "rust/src/lib.rs"        # Path to the library file
 [dependencies]
 pyo3 = { version = "0.18", features = ["extension-module"] }
 noodles-fasta = "0.45.0"  # Update to the latest version of noodles
+memmap2 = "*"
 
 [package.metadata.pyo3]
+# TODO Read the documentation on this
 name = "noodles_fasta_wrapper"
 

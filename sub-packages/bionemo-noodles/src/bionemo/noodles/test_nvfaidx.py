@@ -79,6 +79,9 @@ def test_parallel_index_creation_pyfaidx():
 
 def test_parallel_index_creation_nvfaidx():
     fasta = create_test_fasta(num_seqs=2, seq_length=200000)
+
+    # NOTE: worker_init_fn could also be a way to handle this, where we let it instantiate its own reader.
+
     dl = torch.utils.data.DataLoader(TestDataset(fasta, fasta_cls = NvFaidx), batch_size=32, num_workers=16)
     max_i = 1000
     # NOTE this shouldnt be failing uh oh

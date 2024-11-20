@@ -51,12 +51,11 @@ class SequenceAccessor:
 
 class NvFaidx:
     def __init__(self, fasta_path):
+        # NOTE: you cannot escape the unsafety here by instantiating in a way thats lazy. Need to get rid of the BufReader
         self.reader = IndexedFastaReader(fasta_path)
         self.records = {record.name: record for record in self.reader.records()}
 
     def __getitem__(self, seqid):
-        # region_str = 'contig1:150000-160000'
-        # return self.reader.query_region(region_str)
         if seqid not in self.records:
             raise KeyError(f"Sequence '{seqid}' not found in index.")
 

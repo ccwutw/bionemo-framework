@@ -1,9 +1,9 @@
 use std::fs::File;
 use pyo3::prelude::*;
-
+use memmap2::Mmap;
+use std::io;
 use noodles_fasta::{self as fasta, fai};
 use noodles_fasta::fai::Record;
-use noodles_core::Region;
 use std::path::{Path};
 
 // Expose the Record struct so we can package it nicely in Python.
@@ -137,6 +137,79 @@ impl IndexedFastaReader {
     
 }
 
+fn read_sequence_mmap(index: &fai::Index, reader: &Mmap, region_str: &str) -> io::Result<Vec<u8>> {
+    let region = region_str.parse()
+        .map_err(|e| pyo3::exceptions::PyValueError::new_err(format!("Invalid region: {}", e)))?;
+        
+
+    let start = index.query(region)?;
+    let len = region.len() as usize;
+
+    let result = vec![0; len];
+    /*
+    while result.len() < len {
+        let src = reader.get(start..)?;
+        let remaining_bases = len - result.len();
+        let i = remaining_bases.min(src.len());
+        let bases = &src[..i];
+        result.extend_from_slice(bases);
+    }
+    */
+    return Ok(result);
+}
+
+/*
+fn read_sequence_limit<R>(
+    reader: &R,
+    max_bases: usize,
+    buf: &mut Vec<u8>,
+) -> io::Result<usize>
+where
+    R: Mmap,
+{
+    /// This method is simple, it says given a reader, max bases, and buffer, read max_bases from the current position of the buffer
+    /// fill_buf in this example does...
+    ///
+    /// I'm not even convinced this is the correct pseudocode for what we are doing.
+    ///
+    /// pseudocode:
+    /// func(index, mmap_reader, region)
+    ///     // get byte offset for the region + start positionj
+    ///     let pos = index.query(region)?; 
+    ///     read_seq: Vec<&[u8]> = vec![0; region.len()]
+    ///     while read_seq < len
+    ///         read_seq.append(mmap_reader.readline_noextra())
+    ///     // Truncate read to the max len
+    ///     read_seq = read_seq[:len]
+    ///
+    ///     return read_seq as a copy of the data or immutable reference
+    ///     return read_seq
+    ///
+    
+    let mut reader = Reader::new(reader);
+    let mut len = 0;
+
+    while buf.len() < max_bases {
+        let src = reader.fill_buf()?;
+
+        if src.is_empty() {
+            break;
+        }
+
+        let remaining_bases = max_bases - buf.len();
+        let i = remaining_bases.min(src.len());
+
+        let bases = &src[..i];
+        buf.extend(bases);
+
+        reader.consume(i);
+
+        len += i;
+    }
+
+    Ok(len)
+}
+*/
 #[pymodule]
 fn noodles_fasta_wrapper(_: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<IndexedFastaReader>()?;
