@@ -1,5 +1,4 @@
 [build-system]
-
 requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
 
@@ -18,10 +17,11 @@ dependencies = [
 ]
 
 [tool.maturin]
-bindings = "cffi"
+bindings = "pyo3"
+# bindings = "cffi"
 compatibility = "linux"
 python-source = "src"
-module-name = "bionemo.noodles"
+module-name = "bionemo.noodles_fasta_wrapper"
 version = { file = "VERSION" }
 
 [tool.setuptools.packages.find]

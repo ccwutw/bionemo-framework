@@ -172,6 +172,12 @@ EOF
 
 FROM dev AS development
 
+# TODO (SKH): This doesnt seem safe!
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y && \
+    source $HOME/.cargo/env && \
+    rustup default nightly
+
+
 WORKDIR /workspace/bionemo2
 COPY --from=bionemo2-base /workspace/bionemo2/ .
 COPY ./internal ./internal
