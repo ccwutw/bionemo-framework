@@ -176,6 +176,7 @@ name = "noodles_fasta_wrapper"
 version = "0.1.0"
 dependencies = [
  "memmap2",
+ "noodles-core",
  "noodles-fasta",
  "pyo3",
 ]
