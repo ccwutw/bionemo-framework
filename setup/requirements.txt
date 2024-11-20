@@ -67,6 +67,3 @@ git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py3@1.5.7.post1
 lightning==2.2.1
 # DSMBind
 chemprop==1.6.1
-#Security
-pillow>=10.3.0
-urllib>=1.26.17
